@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pan.dao.RoleDao">
+
+    <resultMap id="RoleMap" type="Role">
+        <id property="role_id" column="role_id"/>
+        <result property="role_name" column="role_name"/>
+        <result property="role_remark" column="role_remark"/>
+        <result property="role_isDefault" column="role_is_default"/>
+        <result property="role_seq" column="role_seq"/>
+        <collection property="resources" ofType="Resource">
+            <id property="resource_id" column="resource_id"/>
+            <result property="resource_name" column="resource_name"/>
+            <result property="resource_type" column="resource_type"/>
+            <result property="resource_state" column="resource_state"/>
+            <result property="resource_seq" column="resource_seq"/>
+            <result property="resource_pid" column="resource_pid"/>
+            <result property="resource_icon" column="resource_icon"/>
+            <result property="resource_remark" column="resource_remark"/>
+            <result column="resource_url" property="resource_url"/>
+            <result property="resource_createTime" column="resource_create_time"/>
+        </collection>
+    </resultMap>
+
+    <select id="findAll" resultType="Role">
+        select * from tb_role
+    </select>
+
+    <select id="findById" resultMap="RoleMap">
+        select * from tb_role ro join tb_role_resource rr on ro.role_id=rr.role_id
+        join tb_resource re on rr.resource_id=re.resource_id
+        where ro.role_id=#{role_id}
+    </select>
+
+    <insert id="grant">
+        delete from tb_role_resource where role_id=#{role_id};
+        <if test="ids != null and ids.length != 0">
+            insert into tb_role_resource values
+            <foreach collection="ids" separator=","  item="item" >
+                (#{role_id} ,#{item} )
+            </foreach>
+        </if>
+    </insert>
+
+    <update id="updateById">
+        update tb_role
+        <set>
+            <if test="role_name != null and role_name != ''">
+                role_name=#{role_name},
+            </if>
+            <if test="role_seq != null">
+                role_seq=#{role_seq} ,
+            </if>
+            <if test="role_remark != null and role_remark != ''">
+                role_remark=#{role_remark}
+            </if>
+        </set>
+        where role_id=#{role_id}
+    </update>
+</mapper>
